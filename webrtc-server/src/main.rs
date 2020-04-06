@@ -63,7 +63,7 @@ async fn main() {
         .expect("could not start RTC server");
 
     let session_endpoint = rtc_server.session_endpoint();
-    let make_svc = make_service_fn(move |addr_stream: &AddrStream| {
+    let make_svc = make_service_fn(move |_: &AddrStream| {
         let session_endpoint = session_endpoint.clone();
         async move {
             Ok::<_, Error>(service_fn(move |req| {
@@ -104,6 +104,7 @@ async fn main() {
     loop {
         match rtc_server.recv(&mut message_buf).await {
             Ok(received) => {
+                log!("sending: {}", &message_buf[0..received.message_len]);
                 if let Err(err) = rtc_server
                     .send(
                         &message_buf[0..received.message_len],
@@ -113,8 +114,7 @@ async fn main() {
                     .await
                 {
                     warn!(
-                        "could not send message to {}: {}",
-                        received.remote_addr, err
+                        "could not send message: {}", err
                     )
                 }
             }

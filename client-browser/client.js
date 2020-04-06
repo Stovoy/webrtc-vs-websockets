@@ -1,5 +1,7 @@
 const WEBSOCKET_ADDRESS = "ws://stovoy.tech:9000";
 const WEBRTC_ADDRESS = "http://stovoy.tech:8001/new_rtc_session";
+//const WEBSOCKET_ADDRESS = "ws://127.0.0.1:9000";
+//const WEBRTC_ADDRESS = "http://127.0.0.1:8000/new_rtc_session";
 
 function runBenchmark(connectionFunction, connectionCount, packetCount, packetInterval, done) {
     const benchmarkData = {connections: {}};
@@ -82,7 +84,7 @@ function openWebRTCConnection(connectionData, packetCount, packetInterval, done)
         );
 
         let closeTimeout = setInterval(function () {
-            if (recvCount === packetCount || Date.now() - connectionData.opened > 5000) {
+            if (recvCount === packetCount || Date.now() - connectionData.opened > 5000000) {
                 connectionData.closing = Date.now();
                 clearInterval(closeTimeout);
                 peer.close();
@@ -100,6 +102,14 @@ function openWebRTCConnection(connectionData, packetCount, packetInterval, done)
     channel.onclose = function () {
         connectionData.closed = Date.now();
         done();
+    };
+
+    channel.onbufferedamountlow = function(evt) {
+        console.log("buffered amount low:", evt.message);
+    };
+
+    peer.onicecandidateerror = function(evt) {
+        console.log("ice candidate error:", evt);
     };
 
     channel.onerror = function (evt) {
@@ -146,8 +156,8 @@ function sendPackets(connection, packetCount, packetInterval, onSend) {
 }
 
 let connectionCount = 1;
-let packetCount = 20;
-let packetInterval = 50;
+let packetCount = 50;
+let packetInterval = 0;
 
 function printCsv(benchmarkResults) {
     let header = 'connectionId,openLatency,closeLatency,';
@@ -175,14 +185,15 @@ function printCsv(benchmarkResults) {
 console.log("Running Websocket Benchmark");
 runBenchmark(openWebsocketConnection, connectionCount, packetCount, packetInterval,
     function (websocketBenchmarkResults) {
-        console.log(websocketBenchmarkResults);
+        console.log("Websocket Results");
         printCsv(websocketBenchmarkResults);
-        console.log('Running WebRTC Benchmark');
-        runBenchmark(openWebRTCConnection, connectionCount, packetCount, packetInterval,
-            function (webRTCBenchmarkResults) {
-                console.log(webRTCBenchmarkResults);
-                printCsv(webRTCBenchmarkResults);
-            }
-        );
+    }
+);
+
+console.log('Running WebRTC Benchmark');
+runBenchmark(openWebRTCConnection, connectionCount, packetCount, packetInterval,
+    function (webRTCBenchmarkResults) {
+        console.log("WebRTC Results");
+        printCsv(webRTCBenchmarkResults);
     }
 );
