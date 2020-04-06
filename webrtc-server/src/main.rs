@@ -104,7 +104,7 @@ async fn main() {
     loop {
         match rtc_server.recv(&mut message_buf).await {
             Ok(received) => {
-                info!("sending: {}", &message_buf[0..received.message_len]);
+                info!("sending: {:?}", &message_buf[0..received.message_len]);
                 if let Err(err) = rtc_server
                     .send(
                         &message_buf[0..received.message_len],
