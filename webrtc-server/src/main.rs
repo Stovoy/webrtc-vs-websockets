@@ -65,13 +65,12 @@ async fn main() {
     let session_endpoint = rtc_server.session_endpoint();
     let make_svc = make_service_fn(move |addr_stream: &AddrStream| {
         let session_endpoint = session_endpoint.clone();
-        let remote_addr = addr_stream.remote_addr();
         async move {
             Ok::<_, Error>(service_fn(move |req| {
                 let mut session_endpoint = session_endpoint.clone();
                 async move {
                     if req.uri().path() == "/new_rtc_session" && req.method() == Method::POST {
-                        info!("WebRTC session request from {}", remote_addr);
+                        info!("WebRTC session request");
                         match session_endpoint.http_session_request(req.into_body()).await {
                             Ok(mut resp) => {
                                 resp.headers_mut().insert(

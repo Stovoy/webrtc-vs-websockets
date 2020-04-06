@@ -1,5 +1,5 @@
-const WEBSOCKET_ADDRESS = "ws://localhost:9000";
-const WEBRTC_ADDRESS = "http://localhost:8000/new_rtc_session";
+const WEBSOCKET_ADDRESS = "ws://stovoy.tech:9000";
+const WEBRTC_ADDRESS = "http://stovoy.tech:8001/new_rtc_session";
 
 function runBenchmark(connectionFunction, connectionCount, packetCount, packetInterval, done) {
     const benchmarkData = {connections: {}};
