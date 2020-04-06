@@ -19,4 +19,4 @@ fastify.ready(err => {
         })
 });
 
-fastify.listen(9000);
+fastify.listen(9000, '0.0.0.0');
